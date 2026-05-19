@@ -1,9 +1,19 @@
+import { BrowserRouter,Routes,Route } from "react-router-dom"
+import Login from "./pages/Login"
+import Home from "./pages/Home"
+import {Toaster} from "react-hot-toast"
 const App = () => {
-  return (
-    <div className="bg-red-400">
-      hello
-    </div>
-  )
+  return <>
+  <BrowserRouter>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/login" element={<Login />} />
+  </Routes>
+  <Toaster />
+  </BrowserRouter>
+  </>
+    
+  
 }
 
 export default App

@@ -21,7 +21,7 @@ export const loginUser = TryCatch(async(req,res)=>{
     const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`);
     
     const {email,name, picture} = userRes.data
-    
+
         let user = await User.findOne({email})
 
         if(!user) {
@@ -36,7 +36,7 @@ export const loginUser = TryCatch(async(req,res)=>{
             expiresIn: "15d",
         })
         res.status(200).json({
-            message: "Logged Success",
+            message: "Logged in Successfully",
             token,
             user,
         })
