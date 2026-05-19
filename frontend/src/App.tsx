@@ -4,6 +4,9 @@ import Home from "./pages/Home"
 import {Toaster} from "react-hot-toast"
 import { useAppStore } from "./store/AppStore"
 import { useEffect } from "react"
+import PublicRoute from "./components/publicRoute"
+import ProtectedRoute from "./components/protectedRoute"
+import SelectRole from "./pages/SelectRole"
 const App = () => {
   const fetchUser = useAppStore((state) => state.fetchUser)
 
@@ -14,8 +17,15 @@ const App = () => {
   return <>
   <BrowserRouter>
   <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/login" element={<Login />} />
+    <Route element={<PublicRoute />}>
+      <Route path="/login" element={<Login />} />
+    </Route>
+    <Route element={<ProtectedRoute />}>
+      <Route path="/" element={<Home />} />
+      <Route path="/select-role" element={<SelectRole />} />
+    </Route>
+    
+    
   </Routes>
   <Toaster />
   </BrowserRouter>
