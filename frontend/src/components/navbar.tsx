@@ -1,19 +1,26 @@
 import { useLocation } from "react-router-dom"
 import { useAppStore } from "../store/AppStore"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Link } from "react-router-dom"
-import { CgShoppingBag, CgShoppingCart } from "react-icons/cg"
+import { CgShoppingCart } from "react-icons/cg"
 import { BiMapPin, BiSearch } from "react-icons/bi"
 const Navbar = () => {
 
     const isAuth = useAppStore((state) => state.isAuth)
+    const city = useAppStore((state) => state.city)
+    const loadingLocation = useAppStore((state) => state.loadingLocation)
     const currLocation = useLocation();
 
     const isHomePage = currLocation.pathname === "/";
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState(searchParams.get("search") || "");
+
+    const displayCity = useMemo(() => {
+        if (loadingLocation) return "Detecting...";
+        return city || "Set city";
+    }, [city, loadingLocation]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -60,7 +67,7 @@ const Navbar = () => {
                         <div className="mx-auto flex max-w-7xl items-center rounded-lg border shadow-sm">
                             <div className="flex items-center gap-2 px-3 border-r text-gray-700">
                                 <BiMapPin className="h-4 w-4 text-[#E23744]" />
-                                <span className="text-sm truncate max-w-35">city</span>
+                                <span className="text-sm truncate max-w-35">{displayCity}</span>
                             </div>
                             <div className="flex flex-1 items-center gap-2 px-3">
                                 <BiSearch className="h-4 w-4 text-gray-400" />

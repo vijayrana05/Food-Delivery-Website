@@ -7,13 +7,16 @@ import { useEffect } from "react"
 import PublicRoute from "./components/publicRoute"
 import ProtectedRoute from "./components/protectedRoute"
 import SelectRole from "./pages/SelectRole"
+import Account from "./pages/Account"
 import Navbar from "./components/navbar"
 const App = () => {
   const fetchUser = useAppStore((state) => state.fetchUser)
+  const fetchLocation = useAppStore((state) => state.fetchLocation)
 
   useEffect(() => {
     fetchUser()
-  }, [fetchUser])
+    fetchLocation()
+  }, [fetchUser, fetchLocation])
 
   return <>
     <BrowserRouter>
@@ -25,6 +28,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/select-role" element={<SelectRole />} />
+          <Route path="/account" element={<Account />} />
         </Route>
 
 

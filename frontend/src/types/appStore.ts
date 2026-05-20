@@ -19,7 +19,7 @@ export interface AppStateType {
   isAuth: boolean; 
   loading: boolean;
   loadingLocation: boolean;
-  city: string;
+  city: string | null;
   setUser: (user: User | null) => void;
   setIsAuth: (auth: boolean) => void;
   setLoading: (loading: boolean) => void;
@@ -27,4 +27,5 @@ export interface AppStateType {
   setLoadingLocation: (loadingLocation: boolean) => void;
   setCity: (city: string | null) => void;
   fetchUser: () => Promise<void>;
+  fetchLocation: () => Promise<void>;
 }
