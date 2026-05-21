@@ -51,3 +51,23 @@ Promise<void> => {
         })
     }
 }
+
+export const isSeller = async(req:AuthenticatedRequest, res:Response, next:NextFunction):
+Promise<void> => {
+    try {
+        const user = req.user;
+
+        if(!user || user.role !== "seller") {
+            res.status(401).json({
+                message: "Access denied - Not a seller",
+            })
+            return;
+        }
+
+        next();
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+        })
+    }
+}
