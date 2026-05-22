@@ -12,6 +12,12 @@ export const Restaurant = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<TabKey>("menu");
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [draftName, setDraftName] = useState("");
+    const [draftDescription, setDraftDescription] = useState("");
+    const [savingEdit, setSavingEdit] = useState(false);
+    const [togglingOpen, setTogglingOpen] = useState(false);
+
     const fetchMyRestaurant = async () => {
         try {
             const {data} = await axios.get(`${restaurantService}/api/restaurants/my`, {
@@ -40,6 +46,97 @@ export const Restaurant = () => {
         fetchMyRestaurant();
     }, []);
 
+    const startEdit = () => {
+        if (!restaurant) return;
+        setDraftName(restaurant.name || "");
+        setDraftDescription(restaurant.description || "");
+        setIsEditing(true);
+    };
+
+    const cancelEdit = () => {
+        if (restaurant) {
+            setDraftName(restaurant.name || "");
+            setDraftDescription(restaurant.description || "");
+        }
+        setIsEditing(false);
+    };
+
+    const saveEdit = async () => {
+        if (!restaurant) return;
+
+        const name = draftName.trim();
+        const description = draftDescription.trim();
+
+        if (!name) return;
+
+        try {
+            setSavingEdit(true);
+            const { data } = await axios.put(
+                `${restaurantService}/api/restaurants/edit`,
+                { name, description },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            // backend may return { restaurant } or just restaurant
+            const nextRestaurant = data?.restaurant ?? data;
+            if (nextRestaurant) {
+                setRestaurant(nextRestaurant);
+            } else {
+                setRestaurant((prev) => (prev ? { ...prev, name, description } : prev));
+            }
+
+            if (data?.token) {
+                localStorage.setItem("token", data.token);
+            }
+
+            setIsEditing(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSavingEdit(false);
+        }
+    };
+
+    const toggleOpen = async () => {
+        if (!restaurant) return;
+
+        try {
+            setTogglingOpen(true);
+            const nextStatus = !restaurant.isOpen;
+
+            const { data } = await axios.put(
+                `${restaurantService}/api/restaurants/status`,
+                { status: nextStatus },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            const nextRestaurant = data?.restaurant ?? data;
+            if (nextRestaurant) {
+                setRestaurant(nextRestaurant);
+            } else {
+                setRestaurant((prev) => (prev ? { ...prev, isOpen: nextStatus } : prev));
+            }
+
+            if (data?.token) {
+                localStorage.setItem("token", data.token);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setTogglingOpen(false);
+        }
+    };
+
     const tabButton = useMemo(() => {
         const base = "flex-1 px-4 py-3 text-sm font-semibold transition";
         const active = "border-b-2 border-[#E23744] text-[#E23744]";
@@ -64,14 +161,17 @@ export const Restaurant = () => {
             <RestaurantProfile
               restaurant={restaurant}
               isSeller
-              onEdit={() => {
-                // TODO: open edit modal
-                console.log("edit restaurant");
-              }}
-              onToggleOpen={() => {
-                // TODO: wire API later
-                console.log("toggle open/close");
-              }}
+              isEditing={isEditing}
+              draftName={draftName}
+              draftDescription={draftDescription}
+              onChangeName={setDraftName}
+              onChangeDescription={setDraftDescription}
+              onEdit={startEdit}
+              onCancelEdit={cancelEdit}
+              onSaveEdit={saveEdit}
+              savingEdit={savingEdit}
+              onToggleOpen={toggleOpen}
+              togglingOpen={togglingOpen}
             />
           </div>
 
