@@ -4,6 +4,8 @@ import axios from 'axios';
 import { restaurantService } from '../main';
 import AddRestaurant from '../components/AddRestaurant';
 import RestaurantProfile from '../components/RestaurantProfile';
+import Menuitems from '../components/Menuitems';
+import AddMenuitem from '../components/AddMenuitem';
 
 type TabKey = "menu" | "add" | "sales";
 
@@ -17,6 +19,8 @@ export const Restaurant = () => {
     const [draftDescription, setDraftDescription] = useState("");
     const [savingEdit, setSavingEdit] = useState(false);
     const [togglingOpen, setTogglingOpen] = useState(false);
+
+    const [menuRefreshKey, setMenuRefreshKey] = useState(0);
 
     const fetchMyRestaurant = async () => {
         try {
@@ -202,10 +206,13 @@ export const Restaurant = () => {
 
             <div className="p-5">
               {activeTab === "menu" && (
-                <div className="text-sm text-gray-600">Menu Page</div>
+                <Menuitems restaurantId={restaurant._id} refreshKey={menuRefreshKey} />
               )}
               {activeTab === "add" && (
-                <div className="text-sm text-gray-600">Add Item Page</div>
+                <AddMenuitem onCreated={() => {
+                  setMenuRefreshKey((k) => k + 1);
+                  setActiveTab("menu");
+                }} />
               )}
               {activeTab === "sales" && (
                 <div className="text-sm text-gray-600">Sales Page</div>

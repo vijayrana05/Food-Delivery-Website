@@ -10,6 +10,7 @@ import SelectRole from "./pages/SelectRole"
 import Account from "./pages/Account"
 import Navbar from "./components/navbar"
 import { Restaurant } from "./pages/Restaurant"
+import RestaurantDetails from "./pages/RestaurantDetails"
 
 
 const App = () => {
@@ -27,30 +28,30 @@ const App = () => {
     return !loading && user?.role === "seller"
   }, [loading, user?.role])
 
-  if (shouldShowRestaurant) {
-    return <Restaurant />
-  }
+  return (
+    <>
+      <Toaster position="top-center" />
 
-  return <>
-    <BrowserRouter>
-      <Navbar/>
-      <Routes>
-        <Route element={<PublicRoute />}>
-          <Route path="/login" element={<Login />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/select-role" element={<SelectRole />} />
-          <Route path="/account" element={<Account />} />
-        </Route>
-
-
-      </Routes>
-      <Toaster />
-    </BrowserRouter>
-  </>
-
-
+      {shouldShowRestaurant ? (
+        <Restaurant />
+      ) : (
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<Login />} />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+              <Route path="/select-role" element={<SelectRole />} />
+              <Route path="/account" element={<Account />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      )}
+    </>
+  )
 }
 
 export default App

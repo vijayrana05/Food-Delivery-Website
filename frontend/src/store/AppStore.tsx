@@ -72,6 +72,8 @@ export const useAppStore = create<AppStateType>((set) => ({
       });
 
       const { latitude, longitude } = position.coords;
+      // console.log("Latitude:", latitude);
+      // console.log("Longitude:", longitude);
 
       const { data } = await axios.get<NominatimReverseResponse>(
         "https://nominatim.openstreetmap.org/reverse",

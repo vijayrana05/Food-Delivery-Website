@@ -20,7 +20,7 @@ const MenuItemSchema = new mongoose.Schema<IMenuItems>(
         description: { type: String, trim: true },
         price: { type: Number, required: true, trim: true },
         image: { type: String, required: false },
-        isAvailable: { type: Boolean, required: true },
+        isAvailable: { type: Boolean, default: true },
     }, {
         timestamps: true,
     }
