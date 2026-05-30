@@ -1,3 +1,5 @@
+import type { ICart } from "./cartType";
+
 export interface User {
   _id: string;
   email: string;
@@ -20,12 +22,24 @@ export interface AppStateType {
   loading: boolean;
   loadingLocation: boolean;
   city: string | null;
+
+  cart: ICart[];
+  subTotal: number;
+  quantity: number;
+
   setUser: (user: User | null) => void;
   setIsAuth: (auth: boolean) => void;
   setLoading: (loading: boolean) => void;
   setLocation: (location: LocationData | null) => void;
   setLoadingLocation: (loadingLocation: boolean) => void;
   setCity: (city: string | null) => void;
+
   fetchUser: () => Promise<void>;
   fetchLocation: () => Promise<void>;
+  fetchCart: () => Promise<void>;
+
+  addToCart: (restaurantId: string, itemId: string) => Promise<void>;
+  incCartItem: (itemId: string) => Promise<void>;
+  decCartItem: (itemId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
 }

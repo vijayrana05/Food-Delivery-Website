@@ -5,11 +5,15 @@ import { useSearchParams } from "react-router-dom"
 import { Link } from "react-router-dom"
 import { CgShoppingCart } from "react-icons/cg"
 import { BiMapPin, BiSearch } from "react-icons/bi"
+
 const Navbar = () => {
 
     const isAuth = useAppStore((state) => state.isAuth)
     const city = useAppStore((state) => state.city)
     const loadingLocation = useAppStore((state) => state.loadingLocation)
+    const quantity = useAppStore((state) => state.quantity)
+    const fetchCart = useAppStore((state) => state.fetchCart)
+
     const currLocation = useLocation();
 
     const isHomePage = currLocation.pathname === "/";
@@ -21,6 +25,11 @@ const Navbar = () => {
         if (loadingLocation) return "Detecting...";
         return city || "Set city";
     }, [city, loadingLocation]);
+
+    useEffect(() => {
+        if (isAuth) fetchCart()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuth]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -44,8 +53,8 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                     <Link to={'/cart'} className="relative">
                         <CgShoppingCart className="h-6 w-6 text-[#E23744]" />
-                        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#E23744] text-xs font-semibold text-white">
-                            0
+                        <span className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E23744] px-1 text-xs font-semibold text-white">
+                            {quantity}
                         </span>
                     </Link>
                     {isAuth ? (

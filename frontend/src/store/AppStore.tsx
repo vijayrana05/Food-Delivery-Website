@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { authService } from "../main";
+import { authService, restaurantService } from "../main";
 import type { AppStateType } from "../types/appStore";
-
 import axios from "axios";
 
 type NominatimReverseResponse = {
@@ -15,13 +14,17 @@ type NominatimReverseResponse = {
   };
 };
 
-export const useAppStore = create<AppStateType>((set) => ({
+export const useAppStore = create<AppStateType>((set, get) => ({
   user: null,
   isAuth: false,
   loading: true,
   location: null,
   loadingLocation: false,
   city: null,
+
+  cart: [],
+  subTotal: 0,
+  quantity: 0,
 
   setUser: (user) => set({ user }),
   setIsAuth: (isAuth) => set({ isAuth }),
@@ -55,6 +58,124 @@ export const useAppStore = create<AppStateType>((set) => ({
     }
   },
 
+  fetchCart: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        set({ cart: [], subTotal: 0, quantity: 0 });
+        return;
+      }
+
+      const { data } = await axios.post(
+        `${restaurantService}/api/cart/all`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      set({
+        cart: data?.cart ?? [],
+        subTotal: data?.subtotal ?? 0,
+        quantity: data?.cartLength ?? 0,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  addToCart: async (restaurantId: string, itemId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await axios.post(
+        `${restaurantService}/api/cart/add`,
+        { restaurantId, itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      await get().fetchCart();
+    } catch (error) {
+      console.log(error);
+      await get().fetchCart();
+    }
+  },
+
+  incCartItem: async (itemId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await axios.put(
+        `${restaurantService}/api/cart/inc`,
+        { itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      await get().fetchCart();
+    } catch (error) {
+      console.log(error);
+      await get().fetchCart();
+    }
+  },
+
+  decCartItem: async (itemId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await axios.put(
+        `${restaurantService}/api/cart/dec`,
+        { itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      await get().fetchCart();
+    } catch (error) {
+      console.log(error);
+      await get().fetchCart();
+    }
+  },
+
+  clearCart: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        set({ cart: [], subTotal: 0, quantity: 0 });
+        return;
+      }
+
+      await axios.delete(`${restaurantService}/api/cart/clear`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      await get().fetchCart();
+    } catch (error) {
+      console.log(error);
+      await get().fetchCart();
+    }
+  },
+
   fetchLocation: async () => {
     if (!navigator.geolocation) {
       set({ city: null, location: null });
@@ -72,8 +193,6 @@ export const useAppStore = create<AppStateType>((set) => ({
       });
 
       const { latitude, longitude } = position.coords;
-      // console.log("Latitude:", latitude);
-      // console.log("Longitude:", longitude);
 
       const { data } = await axios.get<NominatimReverseResponse>(
         "https://nominatim.openstreetmap.org/reverse",
@@ -102,7 +221,6 @@ export const useAppStore = create<AppStateType>((set) => ({
         },
       });
     } catch (error) {
-      // user denied location / timeout / request failed
       console.log(error);
       set({ city: null, location: null });
     } finally {
